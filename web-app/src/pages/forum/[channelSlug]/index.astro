@@ -1,0 +1,256 @@
+---
+import Layout from "../../../layouts/Layout.astro";
+import ThreadCard from "../../../components/ThreadCard.astro";
+import {
+    createPool,
+    getThreadsByChannelSlug,
+    getChannelBySlug,
+    getAllChannels,
+    type Channel,
+    type Thread,
+} from "../../../lib/db";
+import { generateStructuredData } from "../../../lib/seo";
+
+export async function getStaticPaths() {
+    // Initialize database connection
+    const dbConfig = {
+        host: import.meta.env.MYSQL_HOST || "localhost",
+        port: parseInt(import.meta.env.MYSQL_PORT || "3306"),
+        user: import.meta.env.MYSQL_USER || "root",
+        password: import.meta.env.MYSQL_PASSWORD || "password",
+        database: import.meta.env.MYSQL_DATABASE || "forum",
+    };
+
+    createPool(dbConfig);
+
+    // Fetch all channels to generate static paths
+    try {
+        const channels = await getAllChannels();
+        return channels.map((channel) => ({
+            params: { channelSlug: channel.slug },
+            props: { channel },
+        }));
+    } catch (error) {
+        console.error("Failed to fetch channels for static paths:", error);
+        return [];
+    }
+}
+
+interface Props {
+    channel: Channel;
+}
+
+const { channel } = Astro.props;
+const { channelSlug } = Astro.params;
+
+// Initialize database connection
+const dbConfig = {
+    host: import.meta.env.MYSQL_HOST || "localhost",
+    port: parseInt(import.meta.env.MYSQL_PORT || "3306"),
+    user: import.meta.env.MYSQL_USER || "root",
+    password: import.meta.env.MYSQL_PASSWORD || "password",
+    database: import.meta.env.MYSQL_DATABASE || "forum",
+};
+
+createPool(dbConfig);
+
+// Fetch threads for this channel
+let threads: Thread[] = [];
+try {
+    threads = await getThreadsByChannelSlug(channelSlug as string);
+} catch (error) {
+    console.error("Failed to fetch threads:", error);
+}
+
+const seo = {
+    title: `${channel.name} - Forum Channel`,
+    description:
+        channel.description ||
+        `Browse discussions in the ${channel.name} channel. Join the conversation on various topics.`,
+    keywords: [
+        "forum",
+        "channel",
+        channel.name.toLowerCase(),
+        "discord",
+        "community",
+    ],
+    canonical: `${Astro.site}forum/${channel.slug}/`,
+};
+
+// Generate structured data for breadcrumbs
+const breadcrumbSchema = generateStructuredData({
+    type: "BreadcrumbList",
+    breadcrumbs: [
+        { name: "Home", url: Astro.site!.toString() },
+        { name: "Forum", url: `${Astro.site}forum/` },
+        { name: channel.name, url: `${Astro.site}forum/${channel.slug}/` },
+    ],
+});
+---
+
+<Layout seo={seo}>
+    <!-- Structured Data -->
+    <script
+        type="application/ld+json"
+        set:html={JSON.stringify(breadcrumbSchema)}
+    />
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Breadcrumb -->
+        <nav class="flex mb-8" aria-label="Breadcrumb">
+            <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                <li class="inline-flex items-center">
+                    <a
+                        href="/"
+                        class="inline-flex items-center text-sm font-medium text-stack-gray-700 hover:text-stack-blue"
+                    >
+                        <svg
+                            class="w-4 h-4 mr-2"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                        >
+                            <path
+                                d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"
+                            ></path>
+                        </svg>
+                        Home
+                    </a>
+                </li>
+                <li>
+                    <div class="flex items-center">
+                        <svg
+                            class="w-6 h-6 text-stack-gray-400"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                        >
+                            <path
+                                fill-rule="evenodd"
+                                d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                                clip-rule="evenodd"></path>
+                        </svg>
+                        <a
+                            href="/forum/"
+                            class="ml-1 text-sm font-medium text-stack-gray-700 hover:text-stack-blue md:ml-2"
+                            >Forum</a
+                        >
+                    </div>
+                </li>
+                <li>
+                    <div class="flex items-center">
+                        <svg
+                            class="w-6 h-6 text-stack-gray-400"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                        >
+                            <path
+                                fill-rule="evenodd"
+                                d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                                clip-rule="evenodd"></path>
+                        </svg>
+                        <span
+                            class="ml-1 text-sm font-medium text-stack-gray-500 md:ml-2"
+                            >{channel.name}</span
+                        >
+                    </div>
+                </li>
+            </ol>
+        </nav>
+
+        <!-- Channel Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-stack-gray-900 mb-4">
+                {channel.name}
+            </h1>
+            {
+                channel.description && (
+                    <p class="text-lg text-stack-gray-600 mb-4">
+                        {channel.description}
+                    </p>
+                )
+            }
+
+            <div
+                class="flex items-center space-x-6 text-sm text-stack-gray-600"
+            >
+                <span class="flex items-center">
+                    <svg
+                        class="w-4 h-4 mr-1"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                        ></path>
+                    </svg>
+                    {threads.length} threads
+                </span>
+
+                <time
+                    datetime={channel.created_at.toISOString()}
+                    class="flex items-center"
+                >
+                    <svg
+                        class="w-4 h-4 mr-1"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                        ></path>
+                    </svg>
+                    Created {
+                        new Intl.DateTimeFormat("en-US", {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                        }).format(channel.created_at)
+                    }
+                </time>
+            </div>
+        </div>
+
+        <!-- Threads List -->
+        <div class="space-y-4">
+            {
+                threads.map((thread, index) => (
+                    <ThreadCard thread={thread} index={index} />
+                ))
+            }
+        </div>
+
+        {
+            threads.length === 0 && (
+                <div class="text-center py-12">
+                    <svg
+                        class="w-12 h-12 text-stack-gray-400 mx-auto mb-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                        />
+                    </svg>
+                    <h3 class="text-lg font-medium text-stack-gray-900 mb-2">
+                        No threads found
+                    </h3>
+                    <p class="text-stack-gray-600">
+                        This channel doesn't have any threads yet. Check back
+                        later for new discussions.
+                    </p>
+                </div>
+            )
+        }
+    </div>
+</Layout>

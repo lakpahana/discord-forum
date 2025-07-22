@@ -1,0 +1,116 @@
+---
+interface Props {
+    placeholder?: string;
+    class?: string;
+}
+
+const { placeholder = "Search forum...", class: className } = Astro.props;
+---
+
+<div id="search" class={className}></div>
+
+<script>
+    // Import Pagefind UI
+    import { PagefindUI } from "@pagefind/default-ui";
+
+    // Initialize Pagefind search
+    const search = new PagefindUI({
+        element: "#search",
+        showSubResults: true,
+        showImages: false,
+        excerptLength: 15,
+        resetStyles: false,
+        placeholder: "Search forum threads and posts...",
+        bundlePath: "/pagefind/",
+    });
+
+    // Custom CSS styling
+    const style = document.createElement("style");
+    style.textContent = `
+        #search .pagefind-ui__search-input {
+            @apply w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base;
+        }
+        
+        #search .pagefind-ui__results {
+            @apply mt-4 space-y-4;
+        }
+        
+        #search .pagefind-ui__result {
+            @apply bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow;
+        }
+        
+        #search .pagefind-ui__result-title a {
+            @apply text-lg font-semibold text-gray-900 hover:text-blue-600 no-underline;
+        }
+        
+        #search .pagefind-ui__result-excerpt {
+            @apply text-gray-700 mt-2 leading-relaxed;
+        }
+        
+        #search .pagefind-ui__result-tags {
+            @apply mt-3 flex flex-wrap gap-2;
+        }
+        
+        #search .pagefind-ui__result-tag {
+            @apply inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700;
+        }
+        
+        #search .pagefind-ui__button {
+            @apply bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors;
+        }
+        
+        #search .pagefind-ui__message {
+            @apply text-gray-600 text-center py-8;
+        }
+        
+        #search mark {
+            @apply bg-yellow-200 px-1 rounded;
+        }
+        
+        #search .pagefind-ui__search-clear {
+            @apply text-gray-400 hover:text-gray-600;
+        }
+        
+        #search .pagefind-ui__drawer {
+            @apply max-h-96 overflow-y-auto;
+        }
+        
+        #search .pagefind-ui__result-link {
+            @apply block no-underline;
+        }
+        
+        #search .pagefind-ui__result-url {
+            @apply text-sm text-gray-500 mt-1;
+        }
+    `;
+    document.head.appendChild(style);
+</script>
+
+<style>
+    /* Additional custom styles that can't be applied via Tailwind classes */
+    #search {
+        width: 100%;
+    }
+
+    /* Ensure proper spacing and layout */
+    :global(.pagefind-ui__form) {
+        position: relative;
+        margin-bottom: 1rem;
+    }
+
+    :global(.pagefind-ui__search-input) {
+        font-family: inherit;
+        transition: all 0.2s ease-in-out;
+    }
+
+    :global(.pagefind-ui__search-input:focus) {
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 640px) {
+        :global(.pagefind-ui__search-input) {
+            font-size: 16px; /* Prevent zoom on iOS */
+        }
+    }
+</style>

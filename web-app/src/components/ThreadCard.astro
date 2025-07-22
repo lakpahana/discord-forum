@@ -1,0 +1,128 @@
+---
+import type { Thread } from "../lib/db";
+
+interface Props {
+    thread: Thread;
+    index?: number;
+}
+
+const { thread } = Astro.props;
+
+function formatDate(date: Date): string {
+    return new Intl.DateTimeFormat("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+    }).format(date);
+}
+
+function getAuthorInitials(authorAlias: string): string {
+    return authorAlias.substring(0, 2).toUpperCase();
+}
+
+function isStaffMember(authorAlias: string): boolean {
+    // This could be enhanced to check against a staff list
+    // For now, simple heuristic based on alias patterns
+    return (
+        authorAlias.includes("MOD") ||
+        authorAlias.includes("ADMIN") ||
+        authorAlias.includes("STAFF")
+    );
+}
+
+function extractTextFromHtml(html: string | null): string {
+    if (!html) return "";
+    return html.replace(/<[^>]*>/g, "").substring(0, 150) + "...";
+}
+---
+
+<article
+    class="card border-l-4 border-l-transparent hover:border-l-stack-blue transition-colors"
+>
+    <div class="card-body">
+        <div class="flex items-start space-x-4">
+            <!-- Vote/Stats Column -->
+            <div class="flex-shrink-0 stats w-16">
+                <div class="stats-number">{thread.reply_count}</div>
+                <div class="stats-label">replies</div>
+            </div>
+
+            <!-- Content Column -->
+            <div class="flex-1 min-w-0">
+                <div class="flex items-start justify-between">
+                    <div class="flex-1">
+                        <h3 class="text-lg font-semibold mb-2">
+                            <a
+                                href={`/forum/${thread.channel_slug}/${thread.slug}/`}
+                                class="hover:text-stack-blue transition-colors"
+                            >
+                                {thread.title}
+                            </a>
+                        </h3>
+
+                        {
+                            thread.body_html && (
+                                <p class="text-stack-gray-700 text-sm mb-3">
+                                    {extractTextFromHtml(thread.body_html)}
+                                </p>
+                            )
+                        }
+
+                        <!-- Tags -->
+                        {
+                            thread.tags && thread.tags.length > 0 && (
+                                <div class="flex flex-wrap gap-2 mb-3">
+                                    {thread.tags.map((tag) => (
+                                        <span class="badge-tag">{tag}</span>
+                                    ))}
+                                </div>
+                            )
+                        }
+                    </div>
+                </div>
+
+                <!-- Meta Information -->
+                <div
+                    class="flex items-center justify-between text-sm text-stack-gray-600"
+                >
+                    <div class="flex items-center space-x-4">
+                        <div class="flex items-center space-x-2">
+                            <div
+                                class="w-6 h-6 bg-stack-gray-400 rounded-full flex items-center justify-center text-xs text-white font-medium"
+                            >
+                                {getAuthorInitials(thread.author_alias)}
+                            </div>
+                            <span>
+                                {thread.author_alias}
+                                {
+                                    isStaffMember(thread.author_alias) && (
+                                        <span class="badge-staff ml-1">
+                                            Staff
+                                        </span>
+                                    )
+                                }
+                            </span>
+                        </div>
+
+                        <time datetime={thread.created_at.toISOString()}>
+                            asked {formatDate(thread.created_at)}
+                        </time>
+                    </div>
+
+                    {
+                        thread.updated_at > thread.created_at && (
+                            <time
+                                datetime={thread.updated_at.toISOString()}
+                                class="text-stack-gray-500"
+                            >
+                                modified {formatDate(thread.updated_at)}
+                            </time>
+                        )
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</article>

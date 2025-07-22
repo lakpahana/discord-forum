@@ -1,0 +1,119 @@
+---
+import type { Post } from "../lib/db";
+
+interface Props {
+    post: Post;
+    isOriginalPost?: boolean;
+}
+
+const { post, isOriginalPost = false } = Astro.props;
+
+function formatDate(date: Date): string {
+    return new Intl.DateTimeFormat("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+    }).format(date);
+}
+
+function getAuthorInitials(authorAlias: string): string {
+    return authorAlias.substring(0, 2).toUpperCase();
+}
+
+function isStaffMember(authorAlias: string): boolean {
+    return (
+        authorAlias.includes("MOD") ||
+        authorAlias.includes("ADMIN") ||
+        authorAlias.includes("STAFF")
+    );
+}
+---
+
+<article
+    class={`card ${isOriginalPost ? "border-l-4 border-l-stack-orange" : ""}`}
+>
+    <div class="card-body">
+        <div class="flex items-start space-x-4">
+            <!-- Author Avatar -->
+            <div class="flex-shrink-0">
+                <div
+                    class="w-8 h-8 bg-stack-gray-400 rounded-full flex items-center justify-center text-sm text-white font-medium"
+                >
+                    {getAuthorInitials(post.author_alias)}
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="flex-1 min-w-0">
+                <!-- Author and timestamp -->
+                <div class="flex items-center space-x-2 mb-3">
+                    <span class="font-medium text-stack-gray-900">
+                        {post.author_alias}
+                    </span>
+                    {
+                        isStaffMember(post.author_alias) && (
+                            <span class="badge-staff">Staff</span>
+                        )
+                    }
+                    {
+                        isOriginalPost && (
+                            <span class="badge bg-stack-orange text-white">
+                                Original Post
+                            </span>
+                        )
+                    }
+                    <time
+                        datetime={post.created_at.toISOString()}
+                        class="text-sm text-stack-gray-600"
+                    >
+                        {formatDate(post.created_at)}
+                    </time>
+                </div>
+
+                <!-- Reply context -->
+                {
+                    post.reply_to_author_alias && (
+                        <div class="bg-stack-gray-50 border-l-4 border-stack-gray-300 pl-4 py-2 mb-4 text-sm">
+                            <span class="text-stack-gray-600">
+                                Replying to{" "}
+                                <span class="font-medium">
+                                    {post.reply_to_author_alias}
+                                </span>
+                            </span>
+                        </div>
+                    )
+                }
+
+                <!-- Post content -->
+                {
+                    post.body_html ? (
+                        <div
+                            class="content-html prose prose-sm max-w-none"
+                            set:html={post.body_html}
+                        />
+                    ) : (
+                        <p class="text-stack-gray-500 italic">
+                            No content available
+                        </p>
+                    )
+                }
+
+                <!-- Edit timestamp -->
+                {
+                    post.updated_at > post.created_at && (
+                        <div class="mt-4 pt-4 border-t border-stack-gray-200">
+                            <time
+                                datetime={post.updated_at.toISOString()}
+                                class="text-xs text-stack-gray-500"
+                            >
+                                Last edited {formatDate(post.updated_at)}
+                            </time>
+                        </div>
+                    )
+                }
+            </div>
+        </div>
+    </div>
+</article>
