@@ -11,10 +11,6 @@ import { messageHandler } from './handlers/message';
 import { threadHandler } from './handlers/thread';
 import { CommandHandler } from './lib/commandHandler';
 import { syncHistoricalData, SyncOptions } from './lib/sync';
-import { staffRolesRouter } from './routes/staffRoles';
-import { moderationRouter } from './routes/moderation';
-import { healthRouter } from './routes/health';
-
 const logger = createLogger('main');
 
 async function main() {
