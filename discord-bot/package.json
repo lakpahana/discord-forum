@@ -8,6 +8,7 @@
         "build": "tsc",
         "start": "node dist/index.js",
         "sync": "ts-node src/scripts/sync-historical.ts",
+        "delta-sync": "ts-node src/scripts/delta-sync.ts",
         "lint": "eslint src/**/*.ts",
         "lint:fix": "eslint src/**/*.ts --fix",
         "format": "prettier --write src/**/*.ts",
