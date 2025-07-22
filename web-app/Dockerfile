@@ -13,25 +13,6 @@ RUN npm ci
 # Copy source code
 COPY . .
 
-# Set build-time environment variables
-# These are used by Astro during the build process
-ARG MYSQL_HOST=localhost
-ARG MYSQL_PORT=3306
-ARG MYSQL_USER=root
-ARG MYSQL_PASSWORD=password
-ARG MYSQL_DATABASE=forum
-ARG DISCORD_INVITE_URL=https://discord.gg/your-invite-code
-ARG BANNER_EVERY_N=4
-
-# Make environment variables available during build
-ENV MYSQL_HOST=$MYSQL_HOST
-ENV MYSQL_PORT=$MYSQL_PORT
-ENV MYSQL_USER=$MYSQL_USER
-ENV MYSQL_PASSWORD=$MYSQL_PASSWORD
-ENV MYSQL_DATABASE=$MYSQL_DATABASE
-ENV DISCORD_INVITE_URL=$DISCORD_INVITE_URL
-ENV BANNER_EVERY_N=$BANNER_EVERY_N
-
 # Build the application
 RUN npm run build
 
