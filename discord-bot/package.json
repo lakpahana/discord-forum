@@ -1,0 +1,54 @@
+{
+  "name": "discord-forum-bot",
+  "version": "1.0.0",
+  "description": "Discord bot that mirrors forum channels to MySQL database with image processing and moderation",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "nodemon src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "lint": "eslint src/**/*.ts",
+    "lint:fix": "eslint src/**/*.ts --fix",
+    "format": "prettier --write src/**/*.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": ["discord", "bot", "forum", "mysql", "typescript"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "discord.js": "^14.14.1",
+    "mysql2": "^3.6.5",
+    "express": "^4.18.2",
+    "sharp": "^0.33.2",
+    "@aws-sdk/client-s3": "^3.490.0",
+    "@aws-sdk/lib-storage": "^3.490.0",
+    "pino": "^8.17.2",
+    "pino-pretty": "^10.3.1",
+    "prom-client": "^15.1.0",
+    "dotenv": "^16.3.1",
+    "csv-parser": "^3.0.0",
+    "helmet": "^7.1.0",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.6",
+    "@types/express": "^4.17.21",
+    "@types/cors": "^2.8.17",
+    "@typescript-eslint/eslint-plugin": "^6.17.0",
+    "@typescript-eslint/parser": "^6.17.0",
+    "eslint": "^8.56.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.1.2",
+    "nodemon": "^3.0.2",
+    "prettier": "^3.1.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  },
+  "nodemonConfig": {
+    "exec": "ts-node src/index.ts",
+    "ext": "ts",
+    "env": {
+      "NODE_ENV": "development"
+    }
+  }
+}
