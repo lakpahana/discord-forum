@@ -2,6 +2,17 @@
 CREATE DATABASE IF NOT EXISTS forum;
 USE forum;
 
+-- Configuration table for storing app state
+CREATE TABLE IF NOT EXISTS config (
+    key_name VARCHAR(32) PRIMARY KEY,
+    value VARCHAR(255),
+    updated_at DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)
+);
+
+-- Initialize sync state configuration
+INSERT IGNORE INTO config (key_name, value, updated_at) VALUES
+('sync_state', JSON_OBJECT('last_sync', '1970-01-01T00:00:00.000Z', 'is_first_run', 1), NOW());
+
 -- Channels table
 CREATE TABLE IF NOT EXISTS channels (
     id BIGINT PRIMARY KEY,

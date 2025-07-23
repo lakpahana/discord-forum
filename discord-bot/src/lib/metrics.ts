@@ -10,6 +10,13 @@ export const discordEventsTotal = new Counter({
     labelNames: ['event_type', 'status'],
 });
 
+// Smart sync metrics
+export const smartSyncTotal = new Counter({
+    name: 'smart_sync_total',
+    help: 'Total number of smart sync operations',
+    labelNames: ['type'], // 'full' or 'delta'
+});
+
 // Database metrics
 export const dbLatencyMs = new Histogram({
     name: 'db_latency_ms',
