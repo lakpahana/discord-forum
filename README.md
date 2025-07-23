@@ -1,5 +1,9 @@
 # Discord Forum
 
+## Demo
+
+![Demo](demo.gif)
+
 ## Why and What is this ?
 
 During the time of my internship, I noticed that so much knowledge was being lost in the Discord server. And it is not accessible via Search Engines. So I decided to create a system that mirrors the internal Discord forum to a static website. This way, the knowledge is preserved and can be accessed by anyone, even those who are not part of the Discord server.
