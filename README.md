@@ -16,6 +16,9 @@ The system is made up of two main parts:
 
 The bot keeps the site updated by syncing new or updated posts periodically. The web app is then hosted on platforms like Netlify or GitHub Pages for easy access.
 
+<img width="675" height="910" alt="image" src="https://github.com/user-attachments/assets/c8e6f2d3-6598-42b8-9089-64ab1976d806" />
+
+
 ### PIIs, Sensitive Data, and Privacy?
 
 No personal information (PII) is stored. User IDs are hashed, and only aliases are saved.
