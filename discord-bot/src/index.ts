@@ -43,12 +43,18 @@ async function main() {
         const commandHandler = new CommandHandler(client);
         await commandHandler.loadCommands();
 
+        // Check run mode configuration
+        const runMode = process.env.RUN_MODE || 'watch'; // 'watch' or 'once'
+        const exitAfterSync = process.env.EXIT_AFTER_SYNC === 'true';
+
+        logger.info({ runMode, exitAfterSync }, 'Bot configuration');
+
         // Set up Discord event handlers
         client.on('ready', async () => {
             logger.info(`Bot logged in as ${client.user?.tag}`);
 
-            // Register commands
-            if (client.user && process.env.DISCORD_TOKEN) {
+            // Register commands only in watch mode or if explicitly enabled
+            if ((runMode === 'watch' || process.env.REGISTER_COMMANDS === 'true') && client.user && process.env.DISCORD_TOKEN) {
                 try {
                     // Use guild ID for faster command registration during development
                     const guildId = process.env.DISCORD_GUILD_ID;
@@ -90,23 +96,49 @@ async function main() {
                         logger.warn({ errors: stats.errorsEncountered }, 'Historical sync completed with some errors');
                     }
 
+                    // Exit after sync if in one-time mode or explicitly configured
+                    if (runMode === 'once' || exitAfterSync) {
+                        logger.info('Exiting after sync completion as configured');
+                        client.destroy();
+                        process.exit(0);
+                    }
+
                 } catch (error) {
                     logger.error({ error }, 'Historical sync failed');
+
+                    // Exit on sync failure if in one-time mode
+                    if (runMode === 'once' || exitAfterSync) {
+                        logger.error('Exiting due to sync failure in one-time mode');
+                        client.destroy();
+                        process.exit(1);
+                    }
                 }
+            } else if (runMode === 'once') {
+                // If running in one-time mode but no sync is enabled, log a warning and exit
+                logger.warn('Running in one-time mode but ENABLE_HISTORICAL_SYNC is not true. Nothing to do.');
+                client.destroy();
+                process.exit(0);
             }
         });
 
-        client.on('interactionCreate', async (interaction) => {
-            if (interaction.isChatInputCommand()) {
-                await commandHandler.handleInteraction(interaction);
-            }
-        });
+        // Set up interaction and message handlers only in watch mode
+        if (runMode === 'watch') {
+            client.on('interactionCreate', async (interaction) => {
+                if (interaction.isChatInputCommand()) {
+                    await commandHandler.handleInteraction(interaction);
+                }
+            });
 
-        client.on('messageCreate', messageHandler);
-        client.on('messageUpdate', messageHandler);
-        client.on('messageDelete', messageHandler);
-        client.on('threadCreate', threadHandler);
-        client.on('threadUpdate', threadHandler);
+            client.on('messageCreate', messageHandler);
+            client.on('messageUpdate', messageHandler);
+            client.on('messageDelete', messageHandler);
+            client.on('threadCreate', threadHandler);
+            client.on('threadUpdate', threadHandler);
+
+            logger.info('Event handlers registered for watch mode');
+        } else {
+            logger.info('Skipping event handler registration for one-time mode');
+        }
 
         client.on('error', error => {
             logger.error({ error }, 'Discord client error');
