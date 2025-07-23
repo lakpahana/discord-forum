@@ -1,8 +1,5 @@
 import 'dotenv/config';
 import { Client, GatewayIntentBits, Partials } from 'discord.js';
-import express from 'express';
-import helmet from 'helmet';
-import cors from 'cors';
 import { createLogger } from './lib/logger';
 import { initializeDatabase } from './lib/db';
 import { initializeMetrics } from './lib/metrics';
@@ -10,7 +7,7 @@ import { loadStaffFromCSV } from './lib/staffLoader';
 import { messageHandler } from './handlers/message';
 import { threadHandler } from './handlers/thread';
 import { CommandHandler } from './lib/commandHandler';
-import { syncHistoricalData, SyncOptions } from './lib/sync';
+import { smartSync } from './lib/smartSync';
 const logger = createLogger('main');
 
 async function main() {
@@ -64,37 +61,19 @@ async function main() {
                 }
             }
 
-            // Run historical sync if enabled
+            // Run smart sync if enabled
             if (process.env.ENABLE_HISTORICAL_SYNC === 'true') {
-                logger.info('Historical sync enabled, starting sync process...');
+                logger.info('Smart sync enabled, starting sync process...');
 
                 try {
-                    const syncOptions: SyncOptions = {
-                        guildId: process.env.SYNC_GUILD_ID || undefined,
-                        channelId: process.env.SYNC_CHANNEL_ID || undefined,
-                        threadId: process.env.SYNC_THREAD_ID || undefined,
-                        limit: process.env.SYNC_LIMIT ? parseInt(process.env.SYNC_LIMIT) : undefined,
-                        skipExisting: process.env.SYNC_SKIP_EXISTING === 'true',
-                    };
+                    // Determine if this should be a forced full sync based on environment variables
+                    const forceFull = process.env.FORCE_FULL_SYNC === 'true';
 
-                    logger.info({ syncOptions }, 'Starting historical sync with options');
+                    logger.info({ forceFull }, 'Starting smart sync');
 
-                    const stats = await syncHistoricalData(client, syncOptions);
+                    await smartSync(client, { forceFull });
 
-                    const duration = stats.endTime!.getTime() - stats.startTime.getTime();
-                    const durationMinutes = Math.round(duration / 60000 * 100) / 100;
-
-                    logger.info({
-                        channelsProcessed: stats.channelsProcessed,
-                        threadsProcessed: stats.threadsProcessed,
-                        postsProcessed: stats.postsProcessed,
-                        errorsEncountered: stats.errorsEncountered,
-                        durationMinutes,
-                    }, 'Historical sync completed successfully');
-
-                    if (stats.errorsEncountered > 0) {
-                        logger.warn({ errors: stats.errorsEncountered }, 'Historical sync completed with some errors');
-                    }
+                    logger.info('Smart sync completed successfully');
 
                     // Exit after sync if in one-time mode or explicitly configured
                     if (runMode === 'once' || exitAfterSync) {
@@ -104,7 +83,7 @@ async function main() {
                     }
 
                 } catch (error) {
-                    logger.error({ error }, 'Historical sync failed');
+                    logger.error({ error }, 'Smart sync failed');
 
                     // Exit on sync failure if in one-time mode
                     if (runMode === 'once' || exitAfterSync) {
