@@ -24,8 +24,6 @@ export function createPool(config: DatabaseConfig): mysql.Pool {
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0,
-    acquireTimeout: 60000,
-    timeout: 60000,
     supportBigNumbers: true,
     bigNumberStrings: true
   } as mysql.PoolOptions);
@@ -137,7 +135,14 @@ export async function getThreadsByChannelId(channelId: string): Promise<Thread[]
     ...row,
     id: String(row.id),
     channel_id: String(row.channel_id),
-    tags: row.tags ? JSON.parse(row.tags) : null
+    tags: row.tags ? (() => {
+      try {
+        return JSON.parse(row.tags);
+      } catch (e) {
+        console.warn('Failed to parse tags JSON:', row.tags);
+        return null;
+      }
+    })() : null
   }));
 }
 
@@ -162,7 +167,14 @@ export async function getThreadById(threadId: string, channelId: string): Promis
     ...row,
     id: String(row.id),
     channel_id: String(row.channel_id),
-    tags: row.tags ? JSON.parse(row.tags) : null
+    tags: row.tags ? (() => {
+      try {
+        return JSON.parse(row.tags);
+      } catch (e) {
+        console.warn('Failed to parse tags JSON:', row.tags);
+        return null;
+      }
+    })() : null
   };
 }
 
