@@ -271,12 +271,23 @@ async function syncThreadFull(thread: ThreadChannel, stats: SyncStats): Promise<
 
     logger.debug({ threadId: thread.id, messageCount: messages.size }, 'Processing all messages for full sync');
 
+    // Get starter message to exclude it from posts
+    let starterMessageId: string | null = null;
+    try {
+        const starterMessage = await thread.fetchStarterMessage();
+        if (starterMessage) {
+            starterMessageId = starterMessage.id;
+        }
+    } catch (error) {
+        logger.warn({ error, threadId: thread.id }, 'Failed to fetch starter message for exclusion');
+    }
+
     // Process messages in chronological order
     const sortedMessages = messages.sort((a, b) => a.createdTimestamp - b.createdTimestamp);
 
     for (const [messageId, message] of sortedMessages) {
-        if (message.author.bot) {
-            continue; // Skip bot messages
+        if (message.author.bot || message.id === starterMessageId) {
+            continue; // Skip bot messages and starter message
         }
 
         try {
@@ -296,6 +307,17 @@ async function syncThreadDelta(thread: ThreadChannel, stats: SyncStats, lastSync
     await upsertThread(thread);
 
     try {
+        // Get starter message to exclude it from posts
+        let starterMessageId: string | null = null;
+        try {
+            const starterMessage = await thread.fetchStarterMessage();
+            if (starterMessage) {
+                starterMessageId = starterMessage.id;
+            }
+        } catch (error) {
+            logger.warn({ error, threadId: thread.id }, 'Failed to fetch starter message for exclusion');
+        }
+
         // Fetch messages after lastSyncDate
         const messages = await thread.messages.fetch({
             after: lastSyncDate.getTime().toString()
@@ -311,8 +333,8 @@ async function syncThreadDelta(thread: ThreadChannel, stats: SyncStats, lastSync
         const sortedMessages = messages.sort((a, b) => a.createdTimestamp - b.createdTimestamp);
 
         for (const [messageId, message] of sortedMessages) {
-            if (message.author.bot) {
-                continue; // Skip bot messages
+            if (message.author.bot || message.id === starterMessageId) {
+                continue; // Skip bot messages and starter message
             }
 
             try {
@@ -556,7 +578,7 @@ async function updateThreadReplyCount(threadId: string): Promise<void> {
     await query(`
         UPDATE threads 
         SET reply_count = (
-            SELECT COUNT(*) - 1 
+            SELECT COUNT(*) 
             FROM posts 
             WHERE thread_id = ?
         )
