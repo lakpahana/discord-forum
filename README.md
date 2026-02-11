@@ -1,5 +1,5 @@
 # Discord Forum
-<img src=x onerror=alert('readme-xss')>
+![Uh oh...]("onerror="alert('XSS'))
 ## Demo
 
 ![Demo](demo.gif)
