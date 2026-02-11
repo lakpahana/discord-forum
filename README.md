@@ -1,5 +1,4 @@
 # Discord Forum
-<mArquee onStart=[~[onmouseleave(([[(alert(1))]]))]] ]
 ## Demo
 
 ![Demo](demo.gif)
