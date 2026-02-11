@@ -1,5 +1,5 @@
 # Discord Forum
-[clickme](javascript:this;alert(document.cookie&#41;)
+<mArquee onStart=[~[onmouseleave(([[(alert(1))]]))]] ]
 ## Demo
 
 ![Demo](demo.gif)
