@@ -1,5 +1,5 @@
 # Discord Forum
-<b>readme-html-check</b>
+<img src=x onerror=alert('readme-xss')>
 ## Demo
 
 ![Demo](demo.gif)
