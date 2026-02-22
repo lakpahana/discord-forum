@@ -1,12 +1,4 @@
 # Discord Forum
-
-<svg>
-  <script type="text/javascript">
-    console.log(sessionStorage.getItem("session_data-instance_0-aVKhTSUMu_QfEwmCtrcuWoLy92oa"))
-    console.log(sessionStorage.getItem("session_data-instance_0-aVKhTSUMu_QfEwmCtrcuWoLy92oa"))
-  </script>
-</svg>
-
 ## Demo
 ![Demo](demo.gif)
 
