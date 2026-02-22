@@ -1,6 +1,5 @@
 # Discord Forum
 ## Demo
-<svg><script>alert('XSS via SVG')</script></svg>
 ![Demo](demo.gif)
 
 ## Why and What is this ?
