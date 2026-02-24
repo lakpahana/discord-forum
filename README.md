@@ -1,10 +1,4 @@
 # Discord Forum
-<svg>
-  <script type="text/javascript">
-    alert("hi choreo")
-  </script>
-</svg>
-
 ## Demo
 ![Demo](demo.gif)
 
